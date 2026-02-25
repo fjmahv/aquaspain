@@ -30,10 +30,13 @@ export function BasinGrid() {
                 <h3 className="text-base font-bold text-white leading-tight pr-2">{b.name}</h3>
                 <div className="text-right">
                   <div className={cn("text-2xl font-bold", color)}>{p}%</div>
-                  <div className={cn("text-[10px] font-bold flex items-center justify-end gap-1", b.variation >= 0 ? 'text-emerald-500' : 'text-red-500')}>
-                    {b.variation >= 0 ? <TrendingUp size={10}/> : <TrendingDown size={10}/>}
-                    {Math.abs(b.variation).toFixed(1)} pts
-                  </div>
+                    <div 
+                      title="Variación respecto a la semana anterior"
+                      className={cn("text-[10px] font-bold flex items-center justify-end gap-1 cursor-help", b.variation >= 0 ? 'text-emerald-500' : 'text-red-500')}
+                    >
+                      {b.variation >= 0 ? <TrendingUp size={10}/> : <TrendingDown size={10}/>}
+                      {Math.abs(b.variation).toFixed(1)} pts
+                    </div>
                 </div>
               </div>
 

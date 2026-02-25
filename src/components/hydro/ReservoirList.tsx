@@ -31,8 +31,12 @@ export function ReservoirList() {
                 </div>
                 <div className="flex justify-between text-[9px] font-mono text-slate-500 mb-2">
                   <span>{r.current.toLocaleString('es-ES', {maximumFractionDigits:1})} / {r.capacity.toLocaleString('es-ES', {maximumFractionDigits:1})} hm³</span>
-                  <span className={r.variation >= 0 ? 'text-emerald-500' : 'text-red-500'}>{r.variation >= 0 ? '▲' : '▼'} {Math.abs(r.variation).toFixed(1)} pts</span>
-                </div>
+                    <span 
+                      title="Variación respecto a la semana anterior"
+                      className={cn("cursor-help", r.variation >= 0 ? 'text-emerald-500' : 'text-red-500')}
+                    >
+                      {r.variation >= 0 ? '▲' : '▼'} {Math.abs(r.variation).toFixed(1)} pts
+                    </span>                </div>
                 <div className="space-y-1.5">
                   <div className="h-2 w-full bg-slate-800/50 rounded-full overflow-hidden">
                     <div className={cn("h-full", getStatusColorClass(st, 'bg'))} style={{ width: `${p}%` }} />
