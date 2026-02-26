@@ -4,9 +4,9 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 
 export function getHealthStatus(p: number) {
-  if (p < 30) return 'emergency';
-  if (p < 50) return 'warning';
-  if (p < 70) return 'alert';
+  if (p < 15) return 'emergency';
+  if (p < 30) return 'warning';
+  if (p < 50) return 'alert';
   return 'healthy';
 }
 

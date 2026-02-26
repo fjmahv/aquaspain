@@ -12,12 +12,12 @@ export function HomePage() {
 
   return (
     <div className="h-screen w-full bg-[#020617] text-slate-200 flex flex-col overflow-hidden">
-      <header className="h-20 border-b border-slate-800/50 flex items-center px-6 justify-between flex-shrink-0 bg-[#020617] z-10">
+      <header className="py-4 border-b border-slate-800/50 flex flex-col xl:flex-row gap-4 xl:gap-8 items-center px-6 justify-between flex-shrink-0 bg-[#020617] z-10 w-full">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-cyan-600 rounded-lg flex items-center justify-center"><Droplet className="text-white fill-current" /></div>
           <h1 className="text-xl font-black tracking-tighter uppercase hidden md:block">AQUA<span className="text-cyan-500">ESPAÑA</span></h1>
         </div>
-        <div className="flex-1 max-w-4xl px-4 md:px-10"><KPIGrid /></div>
+        <div className="flex-1 w-full px-4 md:px-10"><KPIGrid /></div>
       </header>
       
       <main className="flex-1 flex overflow-hidden relative">
