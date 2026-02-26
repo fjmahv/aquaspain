@@ -1,0 +1,41 @@
+name: Actualizar Datos MITECO
+
+on:
+  schedule:
+    # Se ejecuta todos los martes a las 15:00 UTC (Ajusta esto si el ministerio publica otro día)
+    - cron: '0 15 * * 2'
+  workflow_dispatch: # Te pone un botón en GitHub para ejecutarlo a mano cuando quieras
+
+jobs:
+  actualizar-datos:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar mdbtools (necesario para leer el archivo del Ministerio)
+        run: sudo apt-get update && sudo apt-get install -y mdbtools
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar librerías de Python
+        run: pip install requests pandas rich python-dateutil
+
+      - name: Ejecutar la ETL
+        run: python main.py
+
+      - name: Subir los nuevos datos a GitHub
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+          # Añadimos el JSON y el archivo de hash
+          git add public/datos_embalses_optimizado.json
+          git add last_mdb_hash.txt || true
+          
+          # Solo hace commit si hay cambios reales
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Auto-update: Nuevos datos hidrológicos" && git push)
