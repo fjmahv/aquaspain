@@ -174,7 +174,7 @@ def procesar_datos():
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col].str.replace(',', '.', regex=False), errors='coerce')
         
-        df['FECHA'] = pd.to_datetime(df['FECHA'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
+        df['FECHA'] = pd.to_datetime(df['FECHA'], format='mixed', errors='coerce')
         df = df.dropna(subset=['AGUA_TOTAL', 'AGUA_ACTUAL', 'AMBITO_NOMBRE', 'EMBALSE_NOMBRE', 'FECHA'])
         progress.update(task2, completed=100)
 
