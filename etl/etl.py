@@ -22,7 +22,7 @@ URL_ZIPPED_DB = "https://www.miteco.gob.es/content/dam/miteco/es/agua/temas/eval
 ZIP_FILE = "temp_embalses.zip"
 MDB_FILE = "BD-Embalses.mdb"
 HASH_FILE = "last_mdb_hash.txt"
-JSON_OUTPUT = "../public/datos_embalses_optimizado.json"
+JSON_OUTPUT = "public/datos_embalses_optimizado.json"
 TABLE_NAME = "T_Datos Embalses 1988-2026"
 
 console = Console()
@@ -181,7 +181,7 @@ def procesar_datos():
         # 3. Cálculos Estadísticos
         task3 = progress.add_task("[yellow]Calculando estadísticas (puede tardar unos segundos)...", total=None)
         # Agrupamos y aplicamos la función estadística a cada embalse
-        df_agrupado = df.groupby(['AMBITO_NOMBRE', 'EMBALSE_NOMBRE']).apply(calcular_estadisticas_embalse).reset_index()
+        df_agrupado = df.groupby(['AMBITO_NOMBRE', 'EMBALSE_NOMBRE']).apply(calcular_estadisticas_embalse, include_groups=False).reset_index()
         
         # Renombrar columnas de agrupación a formato corto
         df_agrupado.rename(columns={'AMBITO_NOMBRE': 'an', 'EMBALSE_NOMBRE': 'en'}, inplace=True)
