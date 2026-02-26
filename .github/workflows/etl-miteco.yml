@@ -26,7 +26,7 @@ jobs:
         run: pip install requests pandas rich python-dateutil
 
       - name: Ejecutar la ETL
-        run: python main.py
+        run: python etl/etl.py
 
       - name: Subir los nuevos datos a GitHub
         run: |
