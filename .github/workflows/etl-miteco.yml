@@ -3,7 +3,7 @@ name: Actualizar Datos MITECO
 on:
   schedule:
     # Se ejecuta todos los martes a las 15:00 UTC (Ajusta esto si el ministerio publica otro día)
-    - cron: '0 15 * * 2'
+    - cron: '0 15 * * 4'
   workflow_dispatch: # Te pone un botón en GitHub para ejecutarlo a mano cuando quieras
 
 jobs:
