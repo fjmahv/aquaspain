@@ -17,9 +17,9 @@
       "id": "0d5d6f48f1e3437dbde92cd5ade00257"
     }
   ],
-  // Weekday freshness check, after the 15:00 UTC ETL window
+  // Tuesday–Thursday freshness check, after the 15:00 UTC ETL window
   "triggers": {
-    "crons": ["0 16 * * 1-5"]
+    "crons": ["0 16 * * 2-4"]
   },
   "observability": {
     "enabled": true

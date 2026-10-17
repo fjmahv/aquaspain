@@ -2,7 +2,7 @@ name: Actualizar Datos MITECO
 
 on:
   schedule:
-    - cron: '0 15 * * 1-5'
+    - cron: '0 15 * * 2-4'
   workflow_dispatch: # Te pone un botón en GitHub para ejecutarlo a mano cuando quieras
 
 jobs:
