@@ -1,0 +1,26 @@
+// AquaSpain Worker configuration
+// Serves the Vite build (dist/) as static assets and the reservoir dataset from KV.
+{
+  "name": "aquaspain",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // The dataset and API routes must be handled by the Worker, not by static assets
+    "run_worker_first": ["/datos_embalses_optimizado.json", "/api/*"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "DATOS_KV",
+      "id": "efd9c82f0f094d73b0eb235adb73c4d0"
+    }
+  ],
+  // Daily freshness check (runs after the 15:00 UTC ETL window)
+  "triggers": {
+    "crons": ["0 16 * * *"]
+  },
+  "observability": {
+    "enabled": true
+  }
+}

@@ -1,0 +1,19 @@
+# Dependencies (currently tracked in git; remove with `git rm -r --cached node_modules`)
+node_modules/
+
+# Build and deployment artifacts
+dist/
+.wrangler/
+
+# OS files
+.DS_Store
+
+# Local ETL temporary files
+temp_embalses.zip
+BD-Embalses.mdb
+
+# Manual backups
+*.bak.*
+
+# Local development secrets
+.dev.vars

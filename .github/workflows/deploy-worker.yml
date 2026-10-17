@@ -1,0 +1,34 @@
+name: Deploy Worker
+
+# Builds the frontend and deploys the Cloudflare Worker (static assets + KV API).
+# Data-only commits are skipped: the dataset is served from KV, not from the build.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'public/datos_embalses_optimizado.json'
+      - 'last_mdb_hash.txt'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

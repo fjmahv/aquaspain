@@ -5,7 +5,8 @@ import hashlib
 import zipfile
 import subprocess
 import io
-import shutil  # <-- ¡AQUÍ ESTÁ LA LIBRERÍA QUE FALTA!
+import re
+import shutil
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -23,7 +24,7 @@ ZIP_FILE = "temp_embalses.zip"
 MDB_FILE = "BD-Embalses.mdb"
 HASH_FILE = "last_mdb_hash.txt"
 JSON_OUTPUT = "public/datos_embalses_optimizado.json"
-TABLE_NAME = "T_Datos Embalses 1988-2026"
+# Table name is auto-detected at runtime (MITECO renames it every year, e.g. "T_Datos Embalses 1988-2026")
 
 console = Console()
 
@@ -55,6 +56,22 @@ def get_file_hash(filepath):
         for chunk in iter(lambda: f.read(4096), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+def detectar_tabla():
+    """Lists MDB tables and picks the reservoir data table regardless of its year range."""
+    proceso = subprocess.run(['mdb-tables', '-1', MDB_FILE], capture_output=True, text=True)
+    if proceso.returncode != 0:
+        raise Exception(f"mdb-tables failed: {proceso.stderr}")
+
+    tablas = [t.strip() for t in proceso.stdout.splitlines() if t.strip()]
+    candidatas = [t for t in tablas if 'embals' in t.lower()]
+
+    if not candidatas:
+        raise Exception(f"No reservoir data table found in MDB. Available tables: {tablas}")
+
+    # Prefer "T_Datos Embalses YYYY-YYYY" style names; keep the one with the newest end year
+    con_rango = [t for t in candidatas if re.search(r'\d{4}-\d{4}', t)]
+    return max(con_rango) if con_rango else candidatas[0]
 
 def descargar_y_extraer():
     """Descarga el ZIP, extrae dinámicamente el MDB y limpia temporales."""
@@ -152,10 +169,12 @@ def procesar_datos():
         BarColumn(), TimeElapsedColumn(), console=console
     ) as progress:
         
-        # 1. Extracción con mdb-export
+        # 1. Extraction with mdb-export
         task1 = progress.add_task("[yellow]Extrayendo datos MDB...", total=None)
         try:
-            proceso = subprocess.Popen(['mdb-export', '-D', '%Y-%m-%d %H:%M:%S', MDB_FILE, TABLE_NAME], 
+            table_name = detectar_tabla()
+            console.print(f"[cyan]Tabla detectada:[/cyan] {table_name}")
+            proceso = subprocess.Popen(['mdb-export', '-D', '%Y-%m-%d %H:%M:%S', MDB_FILE, table_name],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = proceso.communicate()
             if proceso.returncode != 0:
@@ -190,8 +209,10 @@ def procesar_datos():
 # 4. Exportación JSON compacta e híbrida (Legible por humanos)
         task4 = progress.add_task("[yellow]Generando JSON optimizado y legible...", total=None)
         
-        # Manejo de NaNs (reemplazando por None para que JSON lo serialice como null)
-        df_agrupado = df_agrupado.where(pd.notnull(df_agrupado), None)
+        # NaN handling: astype(object) is required because assigning None to float
+        # columns coerces values back to NaN, which produced invalid JSON (NaN tokens)
+        # and broke the frontend's JSON.parse.
+        df_agrupado = df_agrupado.astype(object).where(pd.notnull(df_agrupado), None)
         
         export_data = {
             "metadatos": METADATA,
@@ -210,8 +231,9 @@ def procesar_datos():
             # 3. Escribimos cada registro en una única línea
             records = export_data["datos"]
             for i, record in enumerate(records):
-                # separators=(',', ':') elimina espacios innecesarios dentro de la misma línea
-                json_str = json.dumps(record, ensure_ascii=False, separators=(',', ':'))
+                # separators=(',', ':') removes unnecessary spacing within each line
+                # allow_nan=False raises an error if any NaN survives, preventing broken JSON
+                json_str = json.dumps(record, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
                 f.write(f'    {json_str}')
                 
                 # Añadimos coma y salto de línea salvo en el último registro
@@ -220,9 +242,13 @@ def procesar_datos():
                 else:
                     f.write('\n')
                     
-            # 4. Cerramos el JSON
+            # 4. Close the JSON
             f.write('  ]\n}\n')
-        
+
+        # Final validation: the published file must be standards-compliant JSON
+        with open(JSON_OUTPUT, 'r', encoding='utf-8') as f:
+            json.load(f)
+
         progress.update(task4, completed=100)
 
 def main():
