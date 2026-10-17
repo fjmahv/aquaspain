@@ -43,7 +43,16 @@ import { Droplet } from 'lucide-react';
 
 export function HomePage() {
   const { isInitialLoading } = useHydroSync();
-  const { dataDate } = useHydroStore() as any;
+  const { dataDate, syncDate } = useHydroStore() as any;
+
+  // Formats the last server-side refresh timestamp in UTC (e.g. 17/10/2026 09:08 UTC)
+  const formatSyncTime = (iso: string | null) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
+  };
 
   // Función para formatear la fecha (YYYY-MM-DD -> día XX de Mes de YYYY)
   const formatFooterDate = (dateStr: string) => {
@@ -99,10 +108,13 @@ export function HomePage() {
         </section>
       </main>
       
-      {/* Pie de página con la fecha formateada en la parte derecha */}
-      <footer className="h-10 border-t border-slate-800/40 px-6 flex items-center justify-between text-[10px] font-mono text-slate-500 flex-shrink-0 bg-[#020617]">
-        <span>FUENTE: MINISTERIO DE TRANSICIÓN ECOLÓGICA</span>
-        <span>{formatFooterDate(dataDate)}</span>
+      {/* Footer with three columns: source, last refresh (center, UTC), data date */}
+      <footer className="h-10 border-t border-slate-800/40 px-6 grid grid-cols-3 items-center text-[10px] font-mono text-slate-500 flex-shrink-0 bg-[#020617]">
+        <span className="hidden sm:block">FUENTE: MINISTERIO DE TRANSICIÓN ECOLÓGICA</span>
+        <span className="text-center">
+          {formatSyncTime(syncDate) ? `Última sincronización: ${formatSyncTime(syncDate)}` : ''}
+        </span>
+        <span className="text-right">{formatFooterDate(dataDate)}</span>
       </footer>
       
     </div>

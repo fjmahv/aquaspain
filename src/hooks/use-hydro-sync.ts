@@ -12,12 +12,16 @@ export function useHydroSync() {
       const response = await fetch('/datos_embalses_optimizado.json');
       const rawData = await response.json();
       const result = parseHydroJson(rawData);
-      
+
+      // Prefer the server-side refresh timestamp exposed by the Worker
+      // (x-data-uploaded-at header); fall back to the client fetch time.
+      const serverSyncDate = response.headers.get('x-data-uploaded-at');
+
       setData({
         basins: result.basins,
         reservoirs: result.reservoirs,
         dataDate: result.dataDate,
-        syncDate: result.syncDate
+        syncDate: serverSyncDate ?? result.syncDate
       });
     } catch (error) {
       console.error("Error cargando datos:", error);
