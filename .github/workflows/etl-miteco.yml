@@ -2,7 +2,8 @@ name: Actualizar Datos MITECO
 
 on:
   schedule:
-    - cron: '0 15 * * 2-4'
+    # Off-peak minute to avoid GitHub's cron delays at round hours
+    - cron: '23 15 * * 2-4'
   workflow_dispatch: # Te pone un botón en GitHub para ejecutarlo a mano cuando quieras
 
 jobs:
